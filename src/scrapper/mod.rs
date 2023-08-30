@@ -1,40 +1,45 @@
-pub mod spider {
-    use std::collections::HashMap;
-    use headless_chrome::Browser;
+pub mod parser {
+    use scraper::{Html, Selector};
 
-    const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
-
-    pub struct Worker {
-        user_agent: &'static str,
-        headers: HashMap<&'static str, &'static str>,
-        browser: Browser,
+    pub struct Strategy {
+        
     }
 
-    impl Worker {
-        pub fn setup(& mut self) {
-            self.headers.insert("user-agent", self.user_agent);
-        }
+    impl Strategy {
+        fn call(&self, document: &scraper::Html) -> Result<String, &str> {
+            let selector = Selector::parse("#priceBlock").expect("INVALID SELECTOR");
 
-        pub fn run(& self, url: &str) -> Result<std::string::String, anyhow::Error> {
-            let new_tab = self.browser.new_tab().unwrap();
-            new_tab.set_extra_http_headers(self.headers.clone()).unwrap();
-   
-            match new_tab.navigate_to(url)?.wait_until_navigated() {
-                Ok(page) => {
-                    return page.get_content();
-                }
-                Err(e) => return Err(e)
+            match document.select(&selector).next() {
+                Some(dom) => {
+                    match dom.value().attr("data-price") {
+                        Some(value) => {
+                            Ok(value.to_string())
+                        },
+                        None => {
+                            Err("price not found")
+                        }
+                    }
+                },
+                None => Err(&"selector not found")
             }
         }
     }
 
-    pub fn create() -> Worker {
-        let headless_browser = Browser::default().expect("BROWSER_INIT_FAILED");
+    pub struct Worker {
+        pub document: scraper::Html,
+        strategy: Strategy
+    }
 
-        Worker {
-            user_agent: &USER_AGENT,
-            browser: headless_browser,
-            headers: HashMap::new()
+    impl Worker {
+        pub fn run(&self) -> Result<String, &str> {
+            return self.strategy.call(&self.document);
         }
+    }
+
+    pub fn create(body: &String) -> Worker {
+        let document = Html::parse_document(body);
+        let strategy = Strategy {};
+        
+        Worker { document: document, strategy: strategy }
     }
 }
