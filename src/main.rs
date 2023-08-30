@@ -7,7 +7,6 @@ use crate::scrapper::parser;
 
 fn main() {
   let commands: Vec<String> = env::args().collect();
-  // let mut input = String::new()
 
   match commands.get(1) {
     Some(value) => {
