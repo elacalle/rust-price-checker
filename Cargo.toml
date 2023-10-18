@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-headless_chrome = "1.0.5"
+fantoccini = "0.19.3"
 anyhow = "1.0.75"
 scraper = "0.17.1"
+tokio = { version = "1", features = ["full"] }
+serde_json = "1.0.107"
