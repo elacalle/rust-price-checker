@@ -1,23 +1,25 @@
 mod crawler;
 mod scrapper;
-use crate::crawler::spider;
-use crate::scrapper::parser;
 use fantoccini;
-use std::{env, fs::File, io::Write, process};
+use std::env;
+mod shared;
+use shared::errors::validation::{self, InvalidValue};
 
 #[tokio::main]
 async fn main() {
     let commands: Vec<String> = env::args().collect();
 
-    println!("PASA");
+    //bot("").await;
 
-    bot("").await;
+    // is_valid_url(commands.get(1).unwrap_or(""))
+}
 
-    println!("CARGADO")
-    //match commands.get(1) {
-    //    Some(value) => bot(value),
-    //    None => {}
-    //}
+fn is_valid_url(url: &str) -> Result<&str, InvalidValue> {
+    return if url.len() != 0 {
+        Ok(url)
+    } else {
+        Err(validation::InvalidValue::new("test"))
+    };
 }
 
 async fn bot(url: &str) {
@@ -39,7 +41,7 @@ async fn bot(url: &str) {
 
     let value = c.screenshot().await.unwrap();
 
-    let mut file = File::create("foo.png").unwrap();
-    file.write_all(&value);
+    //let mut file = File::create("foo.png").unwrap();
+    // file.write_all(&value);
     // file.expect("archivo no encontrado")w(&value);
 }
